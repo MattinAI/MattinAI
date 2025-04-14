@@ -1,18 +1,16 @@
 services:
   langflow:
-    image: langflowai/langflow:latest
+    image: langflow:4
     pull_policy: if_not_present    
     ports:
       - "7860:7860"
     environment:
       - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
       - LANGFLOW_CONFIG_DIR=app/langflow
-      - LANGFUSE_SECRET_KEY=sk-lf-8ffefb15-ea27-49d2-a5ff-d9bb74c09ce7
-      - LANGFUSE_PUBLIC_KEY=pk-lf-2295e9d3-3e95-43fe-a1df-071a42d007d5
-      - LANGFUSE_HOST=http://172.16.59.1:3000
       - LANGFLOW_COMPONENTS_PATH=custom_components
     volumes:
       - langflow-data:/app/langflow
+      - ./custom_components:/app/custom_components
     networks:
       - candidate_eval_app-network
 
