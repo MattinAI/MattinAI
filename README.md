@@ -12,7 +12,7 @@ Para utilizar MattinAI con todas sus funcionalidades, es necesario crear una ima
 
 1. Clone el repositorio:
    ```bash
-   git clone https://github.com/yourusername/MattinAI.git
+   git clone https://github.com/MattinAI/MattinAI.git
    ```
 
 2. Navegue al directorio de Langflow
@@ -29,8 +29,8 @@ Para utilizar MattinAI con todas sus funcionalidades, es necesario crear una ima
 
 Una vez generada la imagen, es necesario indicar en el docker-compose su nombre:
 
-```docker
+```docker-compose 
 services:
   langflow:
-    image: 'your_image_name'
+    image: 'image:tag'
 ```
