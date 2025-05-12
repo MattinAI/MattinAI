@@ -45,104 +45,14 @@ class PresidioNlpEngineFactory:
         registry = RecognizerRegistry()
         registry.load_predefined_recognizers(nlp_engine=nlp_engine)
         return nlp_engine, registry
-    
-    @staticmethod
-    def create_nlp_engine_with_transformers(model_path: str):
-        """Create an NLP engine with a HuggingFace Transformers model."""
-        from presidio_analyzer.nlp_engine import NlpEngineProvider
-        
-        nlp_configuration = {
-            "nlp_engine_name": "transformers",
-            "models": [
-                {
-                    "lang_code": "en",
-                    "model_name": {"spacy": "en_core_web_sm", "transformers": model_path},
-                }
-            ],
-            "ner_model_configuration": {
-                "model_to_presidio_entity_mapping": {
-                    "PER": "PERSON",
-                    "PERSON": "PERSON",
-                    "LOC": "LOCATION",
-                    "LOCATION": "LOCATION",
-                    "GPE": "LOCATION",
-                    "ORG": "ORGANIZATION",
-                    "ORGANIZATION": "ORGANIZATION",
-                    "NORP": "NRP",
-                    "AGE": "AGE",
-                    "ID": "ID",
-                    "EMAIL": "EMAIL",
-                    "PATIENT": "PERSON",
-                    "STAFF": "PERSON",
-                    "HOSP": "ORGANIZATION",
-                    "PATORG": "ORGANIZATION",
-                    "DATE": "DATE_TIME",
-                    "TIME": "DATE_TIME",
-                    "PHONE": "PHONE_NUMBER",
-                    "HCW": "PERSON",
-                    "HOSPITAL": "ORGANIZATION",
-                    "FACILITY": "LOCATION",
-                },
-                "low_confidence_score_multiplier": 0.4,
-                "low_score_entity_names": ["ID"],
-                "labels_to_ignore": [
-                    "CARDINAL",
-                    "EVENT",
-                    "LANGUAGE",
-                    "LAW",
-                    "MONEY",
-                    "ORDINAL",
-                    "PERCENT",
-                    "PRODUCT",
-                    "QUANTITY",
-                    "WORK_OF_ART",
-                ],
-            },
-        }
-
-        nlp_engine = NlpEngineProvider(nlp_configuration=nlp_configuration).create_engine()
-        registry = RecognizerRegistry()
-        registry.load_predefined_recognizers(nlp_engine=nlp_engine)
-
-        return nlp_engine, registry
-        
-    @staticmethod
-    def create_nlp_engine_with_flair(model_path: str):
-        """
-        Instantiate an NlpEngine with a FlairRecognizer and a small spaCy model.
-        The FlairRecognizer would return results from Flair models, the spaCy model
-        would return NlpArtifacts such as POS and lemmas.
-        :param model_path: Flair model path.
-        """
-        from presidio_analyzer.nlp_engine import NlpEngineProvider
-        import spacy
-
-        registry = RecognizerRegistry()
-        registry.load_predefined_recognizers()
-
-        flair_recognizer = FlairRecognizer(model_path=model_path)
-        nlp_configuration = {
-            "nlp_engine_name": "spacy",
-            "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}],
-        }
-        registry.add_recognizer(flair_recognizer)
-        registry.remove_recognizer("SpacyRecognizer")
-
-        nlp_engine = NlpEngineProvider(nlp_configuration=nlp_configuration).create_engine()
-
-        return nlp_engine, registry
 
     @staticmethod
     def get_nlp_engine(model_family: str, model_path: str):
         """Get the appropriate NLP engine based on the model family."""
         if "spacy" in model_family.lower():
             return PresidioNlpEngineFactory.create_nlp_engine_with_spacy(model_path)
-        elif "huggingface" in model_family.lower():
-            return PresidioNlpEngineFactory.create_nlp_engine_with_transformers(model_path)
-        # elif "flair" in model_family.lower():
-        #     return PresidioNlpEngineFactory.create_nlp_engine_with_flair(model_path)
         else:
-            raise ValueError(f"Model family {model_family} not supported. Use 'spaCy' or 'HuggingFace'")
+            raise ValueError(f"Model family {model_family} not supported. Use 'spaCy'")
 
 class PresidioProcessor:
     """A wrapper to use Presidio for PII detection and anonymization."""
