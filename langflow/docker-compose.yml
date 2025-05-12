@@ -8,9 +8,11 @@ services:
       - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
       - LANGFLOW_CONFIG_DIR=app/langflow
       - LANGFLOW_COMPONENTS_PATH=custom_components
+      - LANGFLOW_LOAD_FLOWS_PATH=flows
     volumes:
       - langflow-data:/app/langflow
       - ./custom_components:/app/custom_components
+      - ./flows:/app/flows
     networks:
       - candidate_eval_app-network
 
