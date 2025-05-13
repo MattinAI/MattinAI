@@ -35,6 +35,8 @@ services:
     image: 'image:tag'
 ```
 
+⚠️ **Advertencia:** Es necesario tener levanta la base de datos del repositorio job_offers para que funcione el sistema.
+
 A continuación levantaremos el servicio:
 ```
 docker compose up 
