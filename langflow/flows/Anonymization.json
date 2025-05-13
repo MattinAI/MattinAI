@@ -1,0 +1,484 @@
+{
+  "data": {
+    "edges": [
+      {
+        "animated": false,
+        "className": "",
+        "data": {
+          "sourceHandle": {
+            "dataType": "TextInput",
+            "id": "TextInput-I7zUS",
+            "name": "text",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "input_text",
+            "id": "PresidioPIIComponentAPI-MAV8p",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          }
+        },
+        "id": "xy-edge__TextInput-I7zUS{œdataTypeœ:œTextInputœ,œidœ:œTextInput-I7zUSœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}-PresidioPIIComponentAPI-MAV8p{œfieldNameœ:œinput_textœ,œidœ:œPresidioPIIComponentAPI-MAV8pœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "selected": false,
+        "source": "TextInput-I7zUS",
+        "sourceHandle": "{œdataTypeœ:œTextInputœ,œidœ:œTextInput-I7zUSœ,œnameœ:œtextœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "PresidioPIIComponentAPI-MAV8p",
+        "targetHandle": "{œfieldNameœ:œinput_textœ,œidœ:œPresidioPIIComponentAPI-MAV8pœ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}"
+      },
+      {
+        "data": {
+          "sourceHandle": {
+            "dataType": "PresidioPIIComponentAPI",
+            "id": "PresidioPIIComponentAPI-MAV8p",
+            "name": "response",
+            "output_types": [
+              "Message"
+            ]
+          },
+          "targetHandle": {
+            "fieldName": "input_value",
+            "id": "TextOutput-fs853",
+            "inputTypes": [
+              "Message"
+            ],
+            "type": "str"
+          }
+        },
+        "id": "xy-edge__PresidioPIIComponentAPI-MAV8p{œdataTypeœ:œPresidioPIIComponentAPIœ,œidœ:œPresidioPIIComponentAPI-MAV8pœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}-TextOutput-fs853{œfieldNameœ:œinput_valueœ,œidœ:œTextOutput-fs853œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}",
+        "source": "PresidioPIIComponentAPI-MAV8p",
+        "sourceHandle": "{œdataTypeœ:œPresidioPIIComponentAPIœ,œidœ:œPresidioPIIComponentAPI-MAV8pœ,œnameœ:œresponseœ,œoutput_typesœ:[œMessageœ]}",
+        "target": "TextOutput-fs853",
+        "targetHandle": "{œfieldNameœ:œinput_valueœ,œidœ:œTextOutput-fs853œ,œinputTypesœ:[œMessageœ],œtypeœ:œstrœ}"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "id": "PresidioPIIComponentAPI-MAV8p",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Detect and anonymize PII in text using Microsoft Presidio API",
+            "display_name": "Presidio Server API",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "input_text",
+              "anonymization_api_url",
+              "model_family",
+              "model_name",
+              "threshold"
+            ],
+            "frozen": false,
+            "icon": "shield-check",
+            "legacy": false,
+            "lf_version": "1.2.0",
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Response",
+                "method": "process_text",
+                "name": "response",
+                "options": null,
+                "required_inputs": null,
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "template": {
+              "_type": "Component",
+              "anonymization_api_url": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Anonymization API URL",
+                "dynamic": false,
+                "info": "Anonymization API endpoint URL",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "anonymization_api_url",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "http://anonymization_server:8000/anonymize"
+              },
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from typing import Dict, List, Optional, Any\nfrom langflow.custom import Component\nfrom langflow.inputs import DropdownInput, FloatInput, MessageTextInput\nfrom langflow.template import Output\nfrom langflow.schema.message import Message\nfrom langflow.logging import logger\nimport requests\nimport json\n\nclass PresidioPIIComponentAPI(Component):\n    display_name = \"Presidio Server API\"\n    description = \"Detect and anonymize PII in text using Microsoft Presidio API\"\n    icon = \"shield-check\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"input_text\",\n            display_name=\"Input Text\",\n            info=\"Text to process for PII detection\",\n        ),\n        MessageTextInput(\n            name=\"anonymization_api_url\",\n            display_name=\"Anonymization API URL\",\n            info=\"Anonymization API endpoint URL\",\n            value=\"http://localhost:8000/anonymization_service/anonymize\",\n        ),\n        DropdownInput(\n            name=\"model_family\",\n            display_name=\"Model Family\",\n            info=\"NLP model type to use for entity detection\",\n            options=[\"spaCy\", \"flair\"],\n            value=\"spaCy\",\n        ),\n        DropdownInput(\n            name=\"model_name\",\n            display_name=\"Model Name\",\n            info=\"Model name within the selected family\",\n            options=[\"en_core_web_lg\", \"ner-english\"],\n            value=\"en_core_web_lg\",\n        ),\n        FloatInput(\n            name=\"threshold\",\n            display_name=\"Confidence Threshold\",\n            info=\"Minimum confidence score for entity detection (0.0-1.0)\",\n            value=0.4,\n        )\n    ]\n\n    outputs = [\n        Output(display_name=\"Response\", name=\"response\", method=\"process_text\"),\n    ]\n\n    def process_text(self) -> Message:\n        \"\"\"Process text for PII detection and anonymization via API.\"\"\"\n        try:\n            # Get the text to process\n            text = self.input_text\n            \n            # If we received a Message object, extract its text\n            if isinstance(text, Message):\n                text = text.text\n                \n            if not text:\n                return Message(text=\"No input text provided.\")\n\n            try:\n                # Prepare API request\n                payload = {\n                    \"text\": text,\n                    \"model_family\": self.model_family,\n                    \"model_name\": self.model_name,\n                    \"threshold\": self.threshold,\n                }\n                \n                # Call the API\n                response = requests.post(\n                    self.anonymization_api_url,\n                    json=payload,\n                    headers={\"Content-Type\": \"application/json\"}\n                )\n\n                # Handle response\n                if response.status_code == 200:\n                    result = response.json()\n                    return Message(text=json.dumps(result))\n                else:\n                    error_message = f\"API error: {response.status_code} - {response.text}\"\n                    logger.error(error_message)\n                    return Message(text=error_message)\n\n            except Exception as e:\n                logger.error(f\"Error calling Presidio API: {e}\")\n                return Message(text=f\"Error calling Presidio API: {str(e)}\")\n            \n        except Exception as e:\n            logger.error(f\"Error processing text: {e}\")\n            return Message(text=f\"Error processing text: {str(e)}\")"
+              },
+              "input_text": {
+                "_input_type": "MessageTextInput",
+                "advanced": false,
+                "display_name": "Input Text",
+                "dynamic": false,
+                "info": "Text to process for PII detection",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "name": "input_text",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              },
+              "model_family": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "Model Family",
+                "dynamic": false,
+                "info": "NLP model type to use for entity detection",
+                "name": "model_family",
+                "options": [
+                  "spaCy",
+                  "flair"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "spaCy"
+              },
+              "model_name": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "Model Name",
+                "dynamic": false,
+                "info": "Model name within the selected family",
+                "name": "model_name",
+                "options": [
+                  "en_core_web_lg",
+                  "ner-english"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "en_core_web_lg"
+              },
+              "threshold": {
+                "_input_type": "FloatInput",
+                "advanced": false,
+                "display_name": "Confidence Threshold",
+                "dynamic": false,
+                "info": "Minimum confidence score for entity detection (0.0-1.0)",
+                "list": false,
+                "list_add_label": "Add More",
+                "name": "threshold",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "float",
+                "value": 0.4
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "PresidioPIIComponentAPI"
+        },
+        "dragging": false,
+        "id": "PresidioPIIComponentAPI-MAV8p",
+        "measured": {
+          "height": 577,
+          "width": 320
+        },
+        "position": {
+          "x": 1162.159717918588,
+          "y": 54.626560851975796
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "TextInput-I7zUS",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "category": "inputs",
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Get text inputs from the Playground.",
+            "display_name": "Text Input",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "input_value"
+            ],
+            "frozen": false,
+            "icon": "type",
+            "key": "TextInput",
+            "legacy": false,
+            "lf_version": "1.2.0",
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Message",
+                "method": "text_response",
+                "name": "text",
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "score": 0.0020353564437605998,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextInputComponent(TextComponent):\n    display_name = \"Text Input\"\n    description = \"Get text inputs from the Playground.\"\n    icon = \"type\"\n    name = \"TextInput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as input.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        return Message(\n            text=self.input_value,\n        )\n"
+              },
+              "input_value": {
+                "_input_type": "MultilineInput",
+                "advanced": false,
+                "copy_field": false,
+                "display_name": "Text",
+                "dynamic": false,
+                "info": "Text to be passed as input.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "input_value",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "epa me llamo jesus garcia"
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "TextInput"
+        },
+        "dragging": false,
+        "id": "TextInput-I7zUS",
+        "measured": {
+          "height": 229,
+          "width": 320
+        },
+        "position": {
+          "x": 654.2558857038382,
+          "y": 120.73277496651428
+        },
+        "selected": false,
+        "type": "genericNode"
+      },
+      {
+        "data": {
+          "id": "TextOutput-fs853",
+          "node": {
+            "base_classes": [
+              "Message"
+            ],
+            "beta": false,
+            "category": "outputs",
+            "conditional_paths": [],
+            "custom_fields": {},
+            "description": "Display a text output in the Playground.",
+            "display_name": "Text Output",
+            "documentation": "",
+            "edited": false,
+            "field_order": [
+              "input_value"
+            ],
+            "frozen": false,
+            "icon": "type",
+            "key": "TextOutput",
+            "legacy": false,
+            "metadata": {},
+            "minimized": false,
+            "output_types": [],
+            "outputs": [
+              {
+                "allows_loop": false,
+                "cache": true,
+                "display_name": "Message",
+                "method": "text_response",
+                "name": "text",
+                "selected": "Message",
+                "tool_mode": true,
+                "types": [
+                  "Message"
+                ],
+                "value": "__UNDEFINED__"
+              }
+            ],
+            "pinned": false,
+            "score": 0.003169567463043492,
+            "template": {
+              "_type": "Component",
+              "code": {
+                "advanced": true,
+                "dynamic": true,
+                "fileTypes": [],
+                "file_path": "",
+                "info": "",
+                "list": false,
+                "load_from_db": false,
+                "multiline": true,
+                "name": "code",
+                "password": false,
+                "placeholder": "",
+                "required": true,
+                "show": true,
+                "title_case": false,
+                "type": "code",
+                "value": "from langflow.base.io.text import TextComponent\nfrom langflow.io import MultilineInput, Output\nfrom langflow.schema.message import Message\n\n\nclass TextOutputComponent(TextComponent):\n    display_name = \"Text Output\"\n    description = \"Display a text output in the Playground.\"\n    icon = \"type\"\n    name = \"TextOutput\"\n\n    inputs = [\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Text\",\n            info=\"Text to be passed as output.\",\n        ),\n    ]\n    outputs = [\n        Output(display_name=\"Message\", name=\"text\", method=\"text_response\"),\n    ]\n\n    def text_response(self) -> Message:\n        message = Message(\n            text=self.input_value,\n        )\n        self.status = self.input_value\n        return message\n"
+              },
+              "input_value": {
+                "_input_type": "MultilineInput",
+                "advanced": false,
+                "copy_field": false,
+                "display_name": "Text",
+                "dynamic": false,
+                "info": "Text to be passed as output.",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "Add More",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "input_value",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": ""
+              }
+            },
+            "tool_mode": false
+          },
+          "showNode": true,
+          "type": "TextOutput"
+        },
+        "dragging": false,
+        "id": "TextOutput-fs853",
+        "measured": {
+          "height": 229,
+          "width": 320
+        },
+        "position": {
+          "x": 1636.068121735547,
+          "y": 338.83093504193056
+        },
+        "selected": true,
+        "type": "genericNode"
+      }
+    ],
+    "viewport": {
+      "x": -681.3223741871739,
+      "y": -1.5285801638508474,
+      "zoom": 1.07289076222885
+    }
+  },
+  "description": "A simple but powerful starter agent.",
+  "endpoint_name": null,
+  "id": "6f06b27c-173d-474c-9bba-2f10d604ed08",
+  "is_component": false,
+  "last_tested_version": "1.2.0",
+  "name": "Anonymization",
+  "tags": [
+    "assistants",
+    "agents"
+  ]
+}
